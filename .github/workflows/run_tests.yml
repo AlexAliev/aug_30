@@ -36,15 +36,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Если есть pyproject.toml — ставим проект как пакет (лучший вариант)
-      - name: Install project (editable)
-        if: success() && github.event_name == 'workflow_dispatch'
-        run: |
-          if [ -f "pyproject.toml" ]; then
-            pip install -e .
-          fi
-
-      # Запуск тестов с учётом выбора пользователя
       - name: Run tests
         run: |
           TARGET="${{ inputs.deployment_target }}"
@@ -53,7 +44,6 @@ jobs:
           elif [ "$TARGET" = "integration" ]; then
             python -m pytest tests/integration -v
           else
-            # all: запускаем всё, но с понятным сообщением
             echo "Running all tests..."
             python -m pytest -v
           fi
