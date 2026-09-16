@@ -33,6 +33,14 @@ jobs:
           pwd
           ls -la
 
+      - name: Show directory tree
+        run: tree -a || ls -R
+
+      - name: Quick import check
+        run: python -c "from pages.homepage import HomePage; print('Import OK')"
+
+
+      
       - name: Install dependencies
         run: pip install -r requirements.txt
 
