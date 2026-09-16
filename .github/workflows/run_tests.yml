@@ -16,7 +16,7 @@ on:
 jobs:
   run-tests:
     runs-on: ubuntu-latest
-    name: Tests
+    name: Tests (${{ inputs.deployment_target }})
     steps:
       - name: Copy source code
         uses: actions/checkout@v4
@@ -26,10 +26,37 @@ jobs:
         with:
           python-version: "3.10"
 
+      # Диагностика: сразу видим, что за система и где мы
+      - name: Show environment
+        run: |
+          python --version
+          pwd
+          ls -la
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run tests via python -m
-        run: python -m pytest -v 
+      # Если есть pyproject.toml — ставим проект как пакет (лучший вариант)
+      - name: Install project (editable)
+        if: success() && github.event_name == 'workflow_dispatch'
+        run: |
+          if [ -f "pyproject.toml" ]; then
+            pip install -e .
+          fi
+
+      # Запуск тестов с учётом выбора пользователя
+      - name: Run tests
+        run: |
+          TARGET="${{ inputs.deployment_target }}"
+          if [ "$TARGET" = "unit" ]; then
+            python -m pytest tests/unit -v
+          elif [ "$TARGET" = "integration" ]; then
+            python -m pytest tests/integration -v
+          else
+            # all: запускаем всё, но с понятным сообщением
+            echo "Running all tests..."
+            python -m pytest -v
+          fi
+
 
      
