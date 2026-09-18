@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      # Диагностика: сразу видим, что за система и где мы
+      
       - name: Show environment
         run: |
           python --version
